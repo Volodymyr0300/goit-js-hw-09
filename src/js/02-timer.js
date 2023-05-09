@@ -12,7 +12,7 @@ import 'flatpickr/dist/flatpickr.min.css';
 
 const COUNT_DALAY = 1000;
 
-const startBtn = document.querySelector('button[data-start');
+const startBtn = document.querySelector('button[data-start]');
 // console.log('🚀 ~ file: 02-timer.js:14 ~ startBtn:', startBtn);
 
 const valueOfDays = document.querySelector('.value[data-days]');
@@ -27,6 +27,28 @@ const valueOfSeconds = document.querySelector('.value[data-seconds]');
 
 startBtn.setAttribute('disabled', '');
 
+let chooseDate;
+let intervalId;
+
+startBtn.addEventListener('click', () => {
+  if (intervalId) {
+    clearInterval(intervalId);
+  }
+
+  intervalId = setInterval(() => {
+    const currentDate = Date.now();
+    const differenceTime = chooseDate - currentDate;
+
+    if (differenceTime <= 0) {
+      clearInterval(intervalId);
+      updateTimer({ days: '00', hours: '00', minutes: '00', seconds: '00' });
+    } else {
+      const timeToSelectedDate = convertMs(differenceTime);
+      updateTimer(timeToSelectedDate);
+    }
+  }, COUNT_DALAY);
+});
+
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -34,22 +56,13 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     const currentDate = Date.now();
-    let chooseDate = selectedDates[0].getTime();
+    chooseDate = selectedDates[0].getTime();
 
     if (chooseDate < currentDate) {
       alert('Please choose a date in the future');
     }
 
     startBtn.removeAttribute('disabled');
-    startBtn.addEventListener('click', () => {
-      setInterval(() => {
-        const currentDate = Date.now();
-        const differenceTime = chooseDate - currentDate;
-        const timeToSelectedDate = convertMs(differenceTime);
-
-        updateTimer(timeToSelectedDate);
-      }, COUNT_DALAY);
-    });
   },
 };
 
